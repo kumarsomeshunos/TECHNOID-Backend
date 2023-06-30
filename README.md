@@ -1,9 +1,11 @@
 # TECHNOID-Backend
 
 ## Libraries In Use
+
 - express
 - dotenv
 - morgan
+- mongoose
 
 ## Folder Structure
 
@@ -13,7 +15,7 @@
 -- middlewares
 -- public
 -- utils
-- index.js
+-- index.js
 - package.json
 
 ## Installation
