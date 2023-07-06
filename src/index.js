@@ -4,6 +4,11 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import mongoose from "mongoose"
 
+// Routers
+import UserRouter from "./routes/User/user";
+import TicketRouter from "./routes/Ticket/ticket";
+import AdminRouter from "./routes/Admin/admin";
+
 // Config
 const app = express();
 dotenv.config();
@@ -25,6 +30,11 @@ const main = async () => {
   app.use(morgan(config.morgan.loggingFormat));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Routes
+  app.use("/api/user", UserRouter);
+  app.use("/api/ticket", TicketRouter);
+  app.use("/api/admin", AdminRouter);
 
   app.get("/healthcheck", (req, res) => {
     res.status(200).json({ status: "OK" });
