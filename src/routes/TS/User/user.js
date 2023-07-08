@@ -2,7 +2,7 @@
 import express from "express";
 
 // Models Import
-import User from "./../../models/User";
+import User from "../../../models/User";
 
 // Config
 const router = express.Router();
