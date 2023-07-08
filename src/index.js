@@ -5,14 +5,14 @@ import morgan from "morgan";
 import mongoose from "mongoose"
 
 // Routers
-import AdminRouter from "./routes/Admin/admin";
-import UserRouter from "./routes/TS/User/user";
-import TicketRouter from "./routes/TS/Ticket/ticket";
+import AdminRouter from "./routes/Admin/admin.js";
+import UserRouter from "./routes/TS/User/user.js";
+import TicketRouter from "./routes/TS/Ticket/ticket.js";
 
 // Config
 const app = express();
 dotenv.config();
-const environment = process.env.ENVIRONMENT; import AdminRouter from "./routes/Admin/admin";
+const environment = process.env.ENVIRONMENT;
 
 const { config } = await import(`./../config.${environment}.js`);
 

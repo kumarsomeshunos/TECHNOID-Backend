@@ -2,8 +2,8 @@
 import express from "express";
 
 // Models Import
-import Ticket from "../../../models/Ticket";
-import User from "../../../models/User";
+// import Ticket from "../../../models/Ticket.js";
+// import User from "../../../models/User.js";
 
 // Config
 const router = express.Router();
