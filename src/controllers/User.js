@@ -1,7 +1,7 @@
-const User = require("../models/User");
+import User from "../models/User.js";
 
 
-exports.getAllUsers = async (req, res) => {
+export async function getAllUsers(req, res) {
     try {
         // Get all users (auth required)
         // Pagination, Filtering
@@ -12,16 +12,16 @@ exports.getAllUsers = async (req, res) => {
 
         const users = await User.find({},
             {
-                firstName : true,
-                lastName : true,
-                registrationNumber : true,
-                manipalEmailID : true,
-                mobileNumber : true,
-                isHosteller : true,
-                tickets : true,
-                approvedByAdmin : true,
-                isAdmin : true,
-                accountCreatedOn : true,
+                firstName: true,
+                lastName: true,
+                registrationNumber: true,
+                manipalEmailID: true,
+                mobileNumber: true,
+                isHosteller: true,
+                tickets: true,
+                approvedByAdmin: true,
+                isAdmin: true,
+                accountCreatedOn: true,
             }).populate('tickets').skip(skip).limit(limit);
 
         return res.status(200).json({
@@ -40,24 +40,24 @@ exports.getAllUsers = async (req, res) => {
 };
 
 // Get user by id (auth required)
-exports.getUserById = async (req, res) => {
+export async function getUserById(req, res) {
     try {
         //here we have to get the id of the user from the url and then find the user with that id
-        
+
         const id = req.params.id;
 
         const user = await User.findById(id,
             {
-                firstName : true,
-                lastName : true,
-                registrationNumber : true,
-                manipalEmailID : true,
-                mobileNumber : true,
-                isHosteller : true,
-                tickets : true,
-                approvedByAdmin : true,
-                isAdmin : true,
-                accountCreatedOn : true,
+                firstName: true,
+                lastName: true,
+                registrationNumber: true,
+                manipalEmailID: true,
+                mobileNumber: true,
+                isHosteller: true,
+                tickets: true,
+                approvedByAdmin: true,
+                isAdmin: true,
+                accountCreatedOn: true,
             }).populate('tickets');
 
         if (!user) {
@@ -79,12 +79,12 @@ exports.getUserById = async (req, res) => {
             message: "Internal server error",
             error: error.message,
         });
-        
+
     }
 }
 
 // Create new user
-exports.createUser = async (req, res) => {
+export async function createUser(req, res) {
     try {
         //here we have to first check if the user with that email id already exists or not
         //then check if all the required fields are present or not
@@ -136,7 +136,7 @@ exports.createUser = async (req, res) => {
 }
 
 // Update existing user (auth required)
-exports.updateUser = async (req, res) => {
+export async function updateUser(req, res) {
     try {
         //here we have to first check if the user with that id exists or not
         //then check if all the required fields are present or not
@@ -188,7 +188,7 @@ exports.updateUser = async (req, res) => {
 }
 
 // Delete existing user (auth required)
-exports.deleteUser = async (req, res) => {
+export async function deleteUser(req, res) {
     try {
         //here we have to first check if the user with that id exists or not
         //then delete the user
@@ -220,9 +220,3 @@ exports.deleteUser = async (req, res) => {
 
     }
 }
-
-
-
-
-
-

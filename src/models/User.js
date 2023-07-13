@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
@@ -22,7 +22,7 @@ const userSchema = new Schema({
         required: true,
         unique: true,
         match: [/^[^\s@]+@muj\.manipal\.edu$/, 'Please enter a valid manipal student email id'],
-        maxlength: 30,
+        maxlength: 50,
     },
     mobileNumber: {
         type: Number,
@@ -72,6 +72,6 @@ userSchema.virtual("numberOfTickets").get(function () {
     return this.tickets.length;
 })
 
-const User = mongoose.Model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;
