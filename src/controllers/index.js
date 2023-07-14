@@ -1,7 +1,9 @@
 // Controllers import
 import * as userController from "./User.js";
+import * as ticketController from "./Ticket.js";
 
 let controller = {
-    userController,
+  userController,
+  ticketController,
 };
 export default controller;
