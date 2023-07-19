@@ -1,10 +1,12 @@
 import User from "../models/User.js";
+import Ticket from "../models/Ticket.js";
+import validateCreateUser from "../utils/validators.js";
+import brcypt from "bcrypt";
 
 export async function getAllUsers(req, res) {
   try {
     // Get all users (auth required)
     // Pagination, Filtering
-
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -42,7 +44,7 @@ export async function getUserById(req, res) {
 
     const id = req.params.id;
 
-    const user = await User.findById(id).populate("tickets");
+    let user = await User.findById(id).populate("tickets");
 
     if (!user) {
       return res.status(404).json({
@@ -50,6 +52,8 @@ export async function getUserById(req, res) {
         message: "User not found",
       });
     }
+    user = user.toObject();
+    delete user.password;
 
     return res.status(200).json({
       success: true,
@@ -72,16 +76,17 @@ export async function createUser(req, res) {
     //then check if all the required fields are present or not
     //then create the user
 
-    const {
-      firstName,
-      lastName,
-      registrationNumber,
-      manipalEmailID,
-      mobileNumber,
-      isHosteller,
-    } = req.body;
+    const { error, value } = validateCreateUser(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation Failed!",
+        error: error.details,
+      });
+    }
 
-    const userExists = await User.findOne({ manipalEmailID });
+    let mail = value.manipalEmailID;
+    const userExists = await User.findOne({ mail });
 
     if (userExists) {
       return res.status(400).json({
@@ -89,15 +94,10 @@ export async function createUser(req, res) {
         message: "User already exists",
       });
     }
-
-    const user = await User.create({
-      firstName,
-      lastName,
-      registrationNumber,
-      manipalEmailID,
-      mobileNumber,
-      isHosteller,
-    });
+    value.password = await brcypt.hash(value.password, 10);
+    let user = await User.create(value);
+    user = user.toObject();
+    delete user.password;
 
     return res.status(201).json({
       success: true,
@@ -140,7 +140,7 @@ export async function updateUser(req, res) {
       });
     }
 
-    const user = await User.findByIdAndUpdate(
+    let user = await User.findByIdAndUpdate(
       id,
       {
         firstName,
@@ -152,6 +152,8 @@ export async function updateUser(req, res) {
       },
       { new: true }
     );
+    user = user.toObject();
+    delete user.password;
 
     return res.status(200).json({
       success: true,
@@ -185,6 +187,8 @@ export async function deleteUser(req, res) {
     }
 
     await User.findByIdAndDelete(id);
+
+    await Ticket.deleteMany({ author: id });
 
     return res.status(200).json({
       success: true,

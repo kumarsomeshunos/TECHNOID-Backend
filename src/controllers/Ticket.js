@@ -1,4 +1,3 @@
-import { query } from "express";
 import Ticket from "../models/Ticket.js";
 // import User from "../models/User";
 
