@@ -1,7 +1,8 @@
 import User from "../models/User.js";
 import Ticket from "../models/Ticket.js";
 import validateCreateUser from "../utils/validators.js";
-import brcypt from "bcrypt";
+import bcrypt from "bcrypt"
+import generateToken from "../utils/generateToken.js";
 
 export async function getAllUsers(req, res) {
   try {
@@ -37,7 +38,7 @@ export async function getAllUsers(req, res) {
   }
 }
 
-// Get user by id (auth required)
+// Get user by id, and logins in user and generates token
 export async function getUserById(req, res) {
   try {
     //here we have to get the id of the user from the url and then find the user with that id
@@ -50,6 +51,23 @@ export async function getUserById(req, res) {
       return res.status(404).json({
         success: false,
         message: "User not found",
+      });
+    }
+    if (req.body.password) {
+      const isPasswordMatch = await bcrypt.compare(req.body.password, user.password);
+      console.log("req body "+ req.body.password)
+      if (!isPasswordMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid password',
+        });
+      }
+      // if password matches then token is generated
+      generateToken(res, user._id);
+    }else{
+      return res.status(401).json({
+        success: false,
+        message: 'Password not provided',
       });
     }
     user = user.toObject();
@@ -202,3 +220,12 @@ export async function deleteUser(req, res) {
     });
   }
 }
+
+export async function logoutUser(req, res){
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
+};
+
