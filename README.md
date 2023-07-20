@@ -9,6 +9,7 @@
 - jwt
 - express-async-handler
 - joi
+- cookie-parser
 
 ## Folder Structure
 
