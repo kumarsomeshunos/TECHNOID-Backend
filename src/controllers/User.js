@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import Ticket from "../models/Ticket.js";
 import validateCreateUser from "../utils/validators.js";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import generateToken from "../utils/generateToken.js";
 
 export async function getAllUsers(req, res) {
@@ -45,7 +45,7 @@ export async function getUserById(req, res) {
 
     const id = req.params.id;
 
-    let user = await User.findById(id).populate("tickets");
+    let user = await User.findById(id);
 
     if (!user) {
       return res.status(404).json({
@@ -54,20 +54,22 @@ export async function getUserById(req, res) {
       });
     }
     if (req.body.password) {
-      const isPasswordMatch = await bcrypt.compare(req.body.password, user.password);
-      console.log("req body "+ req.body.password)
+      const isPasswordMatch = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
       if (!isPasswordMatch) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid password',
+          message: "Invalid password",
         });
       }
       // if password matches then token is generated
       generateToken(res, user._id);
-    }else{
+    } else {
       return res.status(401).json({
         success: false,
-        message: 'Password not provided',
+        message: "Password not provided",
       });
     }
     user = user.toObject();
@@ -112,7 +114,7 @@ export async function createUser(req, res) {
         message: "User already exists",
       });
     }
-    value.password = await brcypt.hash(value.password, 10);
+    value.password = await bcrypt.hash(value.password, 10);
     let user = await User.create(value);
     user = user.toObject();
     delete user.password;
@@ -221,11 +223,10 @@ export async function deleteUser(req, res) {
   }
 }
 
-export async function logoutUser(req, res){
-  res.cookie('jwt', '', {
+export async function logoutUser(req, res) {
+  res.cookie("jwt", "", {
     httpOnly: true,
     expires: new Date(0),
   });
-  res.status(200).json({ message: 'Logged out successfully' });
-};
-
+  res.status(200).json({ message: "Logged out successfully" });
+}

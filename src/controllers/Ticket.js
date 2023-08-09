@@ -1,5 +1,5 @@
 import Ticket from "../models/Ticket.js";
-// import User from "../models/User";
+import User from "../models/User.js";
 
 export async function getAllTickets(req, res) {
   try {
@@ -48,6 +48,8 @@ export async function getTicket(req, res) {
       });
     }
     await ticket.populate("author");
+    ticket = ticket.toObject();
+    delete ticket.author.password;
     return res
       .status(200)
       .json({ success: true, message: "Ticket Data", data: ticket });
@@ -63,12 +65,16 @@ export async function getTicket(req, res) {
 // New ticket (auth required)
 export async function createTicket(req, res) {
   try {
-    let author = "64af98880d69e7f40be725ee"; //get from auth data currently hard-coded
+    let author = req.user; //get from auth data
     let ticket = req.body;
     ticket.author = author;
     let newTicket = await Ticket.create(ticket);
     await newTicket.save();
-    await newTicket.populate("author");
+    newTicket = newTicket.toObject();
+    delete newTicket.author.password;
+    let user = await User.findById(author);
+    user.tickets.push(newTicket._id);
+    await user.save();
     return res.status(201).json({
       success: true,
       message: "New Ticket created successfully",
@@ -92,6 +98,12 @@ export async function updateTicket(req, res) {
       return res.status(404).json({
         success: false,
         message: "Ticket not found",
+      });
+    }
+    if (!ticket.author.equals(req.user._id) && !req.user.isAdmin) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to update this ticket!",
       });
     }
     ticket = await Ticket.findByIdAndUpdate(id, req.body, { new: true });
@@ -120,6 +132,14 @@ export async function deleteTicket(req, res) {
         message: "Ticket not found",
       });
     }
+    if (!ticket.author.equals(req.user._id) && !req.user.isAdmin) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to delete this ticket!",
+      });
+    }
+    await Ticket.findByIdAndDelete(id);
+    await User.updateOne({ _id: ticket.author }, { $pull: { tickets: id } });
     return res.status(201).json({
       success: true,
       message: "Ticket deleted successfully",
