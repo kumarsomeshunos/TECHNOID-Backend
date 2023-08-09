@@ -3,11 +3,13 @@ import User from "../models/User.js";
 
 export async function getAllTickets(req, res) {
   try {
-    let { page, limit, author, category, approvedByAdmin } = req.query;
+    let { page, limit, author, category, approvedByAdmin, open } = req.query;
     page = parseInt(page) - 1 || 0;
     limit = parseInt(limit) || 5;
 
     let query = {};
+    if (open == "true") query.expiresOn = { $gte: Date.now() };
+    else if (open == "false") query.expiresOn = { $lte: Date.now() };
     if (author) query.author = author;
     if (category) query.category = category;
     if (approvedByAdmin == "true") query.approvedByAdmin = true;
@@ -47,9 +49,11 @@ export async function getTicket(req, res) {
         error: `Ticket with ID:${id} is not found !`,
       });
     }
-    await ticket.populate("author");
-    ticket = ticket.toObject();
-    delete ticket.author.password;
+    await ticket.populate("author", "firstName lastName approvedByAdmin");
+    await ticket.populate(
+      "interestedToWork",
+      "firstName lastName manipalEmailID mobileNumber approvedByAdmin"
+    );
     return res
       .status(200)
       .json({ success: true, message: "Ticket Data", data: ticket });
@@ -65,14 +69,11 @@ export async function getTicket(req, res) {
 // New ticket (auth required)
 export async function createTicket(req, res) {
   try {
-    let author = req.user; //get from auth data
     let ticket = req.body;
-    ticket.author = author;
+    ticket.author = req.user._id;
     let newTicket = await Ticket.create(ticket);
     await newTicket.save();
-    newTicket = newTicket.toObject();
-    delete newTicket.author.password;
-    let user = await User.findById(author);
+    let user = await User.findById(req.user._id);
     user.tickets.push(newTicket._id);
     await user.save();
     return res.status(201).json({
@@ -144,6 +145,40 @@ export async function deleteTicket(req, res) {
       success: true,
       message: "Ticket deleted successfully",
     });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong!",
+      error: error.message,
+    });
+  }
+}
+
+// Showed interest to work
+export async function addToInterest(req, res) {
+  try {
+    let id = req.params.id;
+    let ticket = await Ticket.findById(id);
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found",
+      });
+    }
+    if (ticket.author.equals(req.user._id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Could not show interest in own project!",
+      });
+    }
+    ticket.interestedToWork.push(req.user._id);
+    await ticket.save();
+    let user = await User.findById(req.user._id);
+    user.projectsInterested.push(id);
+    await user.save();
+    return res
+      .status(200)
+      .json({ success: true, message: "Added Successfully!" });
   } catch (error) {
     return res.status(500).json({
       success: false,

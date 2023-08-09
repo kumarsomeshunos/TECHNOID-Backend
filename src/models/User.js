@@ -55,6 +55,12 @@ const userSchema = new mongoose.Schema({
       ref: "Ticket",
     },
   ],
+  interestedToWork: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Ticket",
+    },
+  ],
   approvedByAdmin: {
     type: Boolean,
     default: false,

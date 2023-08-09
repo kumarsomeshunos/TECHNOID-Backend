@@ -26,4 +26,11 @@ router.patch("/:id/update", protect, controller.ticketController.updateTicket);
 // Delete a ticket (auth required)
 router.get("/:id/delete", protect, controller.ticketController.deleteTicket);
 
+//Add interest to a ticket
+router.get(
+  "/:id/interested",
+  protect,
+  controller.ticketController.addToInterest
+);
+
 export default router;
