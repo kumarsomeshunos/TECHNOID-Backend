@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema({
       ref: "Ticket",
     },
   ],
-  interestedToWork: [
+  projectsInterested: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ticket",
