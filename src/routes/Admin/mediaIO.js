@@ -2,6 +2,7 @@
 import express from "express";
 import path from "path";
 import multer from "multer";
+import { protectAdmin } from "../../middleware/authMiddleware.js";
 
 // Config
 const router = express.Router();
@@ -31,7 +32,7 @@ const upload = multer({
 });
 
 // Route to serve image to frontend (specific)
-router.get("/get/image/:imageName", (req, res) => {
+router.get("/get/image/:imageName", protectAdmin, (req, res) => {
   try {
     const imageName = path.join(
       __dirname + `/src/public/media/${req.params.imageName}`
@@ -49,7 +50,7 @@ router.get("/get/image/:imageName", (req, res) => {
 });
 
 // Route to upload image
-router.post("/upload/image", upload.single("image"), (req, res, next) => {
+router.post("/upload/image", protectAdmin, upload.single("image"), (req, res, next) => {
   try {
     const uploadedMedia = req.file;
     if (!uploadedMedia) {

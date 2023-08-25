@@ -2,7 +2,8 @@ import User from "../models/User.js";
 import Ticket from "../models/Ticket.js";
 import validateCreateUser from "../utils/validators.js";
 import bcrypt from "bcrypt";
-import generateToken from "../utils/generateToken.js";
+import generateTokenUser from "../utils/generateTokenUser.js";
+import generateTokenAdmin from "../utils/generateTokenAdmin.js";
 
 export async function getAllUsers(req, res) {
   try {
@@ -38,7 +39,7 @@ export async function getAllUsers(req, res) {
   }
 }
 
-// Get user by id, and logins in user and generates token
+// Get user by id, and logs in the user and generates token
 export async function getUserById(req, res) {
   try {
     //here we have to get the id of the user from the url and then find the user with that id
@@ -65,7 +66,11 @@ export async function getUserById(req, res) {
         });
       }
       // if password matches then token is generated
-      generateToken(res, user._id);
+      generateTokenUser(res, user._id);
+      // if user is admin then admin token is also generated
+      if (user.isAdmin === true) {
+        generateTokenAdmin(res, user._id);
+      }
     } else {
       return res.status(401).json({
         success: false,
