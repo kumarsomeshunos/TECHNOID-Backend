@@ -2,8 +2,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 // Routers
 import AdminRouter from "./routes/Admin/admin.js";
@@ -19,21 +20,29 @@ const { config } = await import(`./../config.${environment}.js`);
 
 const main = async () => {
   // Mongo Connection
-  mongoose.connect(config.mongo.uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  mongoose
+    .connect(config.mongo.uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
     .then(() => {
       console.log("Connected to MongoDB");
     })
     .catch((error) => {
       console.log("Error connecting to MongoDB");
       console.log(error);
-    })
+    });
 
   // Middlewares
+  let corsOptions = {
+    origin: ["https://technoid-frontend.vercel.app/"],
+  };
+
+  app.use(cors(corsOptions));
   app.use(morgan(config.morgan.loggingFormat));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
-
 
   // Routes
   // TS stands for Ticket System project (will create similar routes for other projects)
@@ -48,9 +57,9 @@ const main = async () => {
   app.listen(config.port, () => {
     console.log(`Listening on port: ${config.port}`);
   });
-}
+};
 
 main().catch((error) => {
   console.log("Something went wrong in main");
   console.log(error);
-})
+});
