@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import mongoose from "mongoose"
+import cookieParser from "cookie-parser";
 
 // Routers
 import AdminRouter from "./routes/Admin/admin.js";
@@ -31,6 +32,8 @@ const main = async () => {
   app.use(morgan(config.morgan.loggingFormat));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+
 
   // Routes
   // TS stands for Ticket System project (will create similar routes for other projects)

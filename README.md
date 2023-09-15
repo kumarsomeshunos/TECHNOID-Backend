@@ -6,6 +6,10 @@
 - dotenv
 - morgan
 - mongoose
+- jwt
+- express-async-handler
+- joi
+- cookie-parser
 
 ## Folder Structure
 
