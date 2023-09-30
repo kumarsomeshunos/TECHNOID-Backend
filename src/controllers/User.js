@@ -39,14 +39,41 @@ export async function getAllUsers(req, res) {
   }
 }
 
-// Get user by id, and logs in the user and generates token
+//Get user by id
 export async function getUserById(req, res) {
   try {
-    //here we have to get the id of the user from the url and then find the user with that id
-
     const id = req.params.id;
+    const user = await User.findById(id)
+      .populate("tickets")
+      .select("-password");
 
-    let user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User data",
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong!",
+      error: error.message,
+    });
+  }
+}
+
+// logs in the user and generates token
+export async function loginUser(req, res) {
+  try {
+    let user = await User.findOne({
+      registrationNumber: req.body.registrationNumber,
+    });
 
     if (!user) {
       return res.status(404).json({

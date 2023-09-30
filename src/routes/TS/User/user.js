@@ -25,6 +25,9 @@ router.patch("/:id/update", protectUser, controller.userController.updateUser);
 // Delete user (auth required)
 router.get("/:id/delete", protectUser, controller.userController.deleteUser);
 
+// Login the user using registration number and password
+router.get("/login", controller.userController.loginUser);
+
 // Logout the user
 router.get("/:id/logout", protectUser, controller.userController.logoutUser);
 
